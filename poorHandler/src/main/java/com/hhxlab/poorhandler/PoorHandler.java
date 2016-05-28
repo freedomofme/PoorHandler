@@ -1,7 +1,19 @@
 package com.hhxlab.poorhandler;
 
-abstract class PoorHandler {
-    abstract void handleMessage(Message e);
+public class PoorHandler {
+    public PoorHandler() {
+        Looper mLooper = Looper.myLooper();
+        messageQueue = mLooper.mMessageQueue;
+    }
+
+    public PoorHandler(MessageQueue mMessageQueue) {
+        messageQueue = mMessageQueue;
+    }
+
+    public void handleMessage(Message e) {
+    };
+
+    final MessageQueue messageQueue;
 
     public void dispatchMessage(Message e) {
         handleMessage(e);
@@ -11,12 +23,18 @@ abstract class PoorHandler {
         Message message = obtainMessage();
         message.what = what;
 
-        Looper.myLooper().mMessageQueue.messageArrayList.offer(message);
+        try {
+            messageQueue.messageArrayList.put(message);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 
     public Message obtainMessage() {
-        return new Message();
+        Message temp = new Message();
+        temp.target = this;
+        return temp;
     }
 
 
